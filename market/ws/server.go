@@ -21,12 +21,12 @@ var upgrader = websocket.Upgrader{
 }
 
 type Client struct {
-	hub      *Hub
-	conn     *websocket.Conn
-	send     chan []byte
-	subs     map[types.Symbol]struct{}
-	remote   string
-	mu       sync.Mutex
+	hub    *Hub
+	conn   *websocket.Conn
+	send   chan []byte
+	subs   map[types.Symbol]struct{}
+	remote string
+	mu     sync.Mutex
 }
 
 type Hub struct {
@@ -110,6 +110,7 @@ func (s *Server) Start() error {
 	mux.HandleFunc("/health", s.handleHealth)
 	mux.HandleFunc("/api/v1/trades", s.handleGetTrades)
 	mux.HandleFunc("/api/v1/depth", s.handleGetDepth)
+	mux.HandleFunc("/admin/orderbook/snapshot", s.handleOrderBookSnapshot)
 
 	s.srv = &http.Server{
 		Addr:         fmt.Sprintf(":%d", s.port),
@@ -167,6 +168,29 @@ func (s *Server) handleGetTrades(w http.ResponseWriter, r *http.Request) {
 func (s *Server) handleGetDepth(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{"message": "depth endpoint"})
+}
+
+func (s *Server) handleOrderBookSnapshot(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	if r.Method != http.MethodPost {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		json.NewEncoder(w).Encode(map[string]string{"error": "POST required"})
+		return
+	}
+
+	path := matching.DefaultOrderBookSnapshotPath
+	if err := s.engine.WriteOrderBookSnapshot(path); err != nil {
+		s.logger.Error("manual order book snapshot failed", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+		return
+	}
+
+	json.NewEncoder(w).Encode(map[string]string{
+		"status":   "ok",
+		"snapshot": path,
+		"checksum": matching.ChecksumPath(path),
+	})
 }
 
 func (c *Client) readPump() {

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"os"
@@ -35,17 +36,17 @@ func main() {
 	)
 
 	bookConfig := orderbook.Config{
-		MaxDepth:      *depth,
-		PriceDecimals: 8,
+		MaxDepth:       *depth,
+		PriceDecimals:  8,
 		VolumeDecimals: 8,
 	}
 
 	engineConfig := matching.EngineConfig{
-		OrderTimeoutMs: 30000,
+		OrderTimeoutMs:   30000,
 		MaxPendingOrders: 10000,
-		EnableShorting:  true,
-		FeeRate:         "0.001",
-		MakerFeeRate:    "0.0005",
+		EnableShorting:   true,
+		FeeRate:          "0.001",
+		MakerFeeRate:     "0.0005",
 	}
 
 	books := make(map[types.Symbol]*orderbook.OrderBook)
@@ -61,6 +62,22 @@ func main() {
 	logger.Info("matching engine initialized",
 		zap.Int("symbols", len(parsedSymbols)),
 	)
+
+	snapshotPath := matching.DefaultOrderBookSnapshotPath
+	if err := engine.RecoverOrderBookSnapshot(snapshotPath); err != nil {
+		if os.IsNotExist(err) {
+			logger.Info("no order book snapshot found", zap.String("path", snapshotPath))
+		} else {
+			logger.Warn("order book snapshot recovery skipped", zap.String("path", snapshotPath), zap.Error(err))
+		}
+	} else {
+		logger.Info("order book snapshot recovered", zap.String("path", snapshotPath))
+	}
+
+	snapshotCtx, stopSnapshots := context.WithCancel(context.Background())
+	engine.StartOrderBookSnapshots(snapshotCtx, snapshotPath, matching.SnapshotIntervalFromEnv(), func(err error) {
+		logger.Warn("order book snapshot write failed", zap.String("path", snapshotPath), zap.Error(err))
+	})
 
 	hub := ws.NewHub(logger)
 	go hub.Run()
@@ -80,6 +97,13 @@ func main() {
 	logger.Info("shutting down",
 		zap.String("signal", sig.String()),
 	)
+
+	stopSnapshots()
+	if err := engine.WriteOrderBookSnapshot(snapshotPath); err != nil {
+		logger.Warn("final order book snapshot failed", zap.String("path", snapshotPath), zap.Error(err))
+	} else {
+		logger.Info("final order book snapshot written", zap.String("path", snapshotPath))
+	}
 
 	server.Stop()
 	logger.Info("server stopped")
