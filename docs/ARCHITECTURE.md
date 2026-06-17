@@ -49,10 +49,13 @@ by the schema registry.
 
 1. **Services are stateless** - All state is stored in PostgreSQL, Redis, or S3.
    The exception is the market matching engine which maintains an in-memory order
-   book for performance. The in-memory state is snapshot to disk every 100ms and
-   can be recovered on restart. The snapshot recovery was tested during the 2022
-   disaster recovery drill and took 47 seconds to recover 2.3 million open orders.
-   The RTO requirement is 60 seconds, so this passed. Barely.
+   book for performance. The Go market service writes deterministic order book
+   snapshots to `data/orderbook_snapshot.json` with a matching
+   `data/orderbook_snapshot.sha256` checksum. Snapshots are written every
+   60 seconds by default, can be tuned with `OB_SNAPSHOT_INTERVAL_SECS`, and can
+   be triggered immediately with `POST /admin/orderbook/snapshot`. Startup
+   recovery validates both the embedded checksum and sidecar checksum before
+   restoring book state.
 
 2. **Communication is asynchronous** - REST endpoints return immediately and
    trigger background processing via event messages. The client polls for results
