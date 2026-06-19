@@ -8,7 +8,7 @@ import (
 )
 
 func TestStartIdempotent(t *testing.T) {
-	c := NewCollector(10, 10*time.Millisecond, 100)
+	c := NewCollector().WithBatchSize(10).WithFlushInterval(10 * time.Millisecond).WithMaxBacklog(100)
 	defer c.Stop()
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -39,7 +39,7 @@ func TestStartIdempotent(t *testing.T) {
 }
 
 func TestStartAfterStop(t *testing.T) {
-	c := NewCollector(10, 10*time.Millisecond, 100)
+	c := NewCollector().WithBatchSize(10).WithFlushInterval(10 * time.Millisecond).WithMaxBacklog(100)
 
 	ctx, cancel := context.WithCancel(context.Background())
 
