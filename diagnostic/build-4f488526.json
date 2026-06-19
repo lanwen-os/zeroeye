@@ -1,0 +1,21 @@
+﻿{
+    "generated_at":  "2026-06-19T23:43:43+08:00",
+    "commit_id":  "4f488526",
+    "modules":  [
+                    {
+                        "elapsed_seconds":  2.5,
+                        "name":  "market",
+                        "language":  "Go",
+                        "tests":  [
+                                      "TestStartIdempotent",
+                                      "TestStartAfterStop"
+                                  ],
+                        "success":  true,
+                        "test_status":  "PASS"
+                    }
+                ],
+    "system_info":  {
+                        "os":  "Windows",
+                        "go_version":  "go1.26.4"
+                    }
+}
