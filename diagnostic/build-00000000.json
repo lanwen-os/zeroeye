@@ -1,23 +1,24 @@
 {
-  "generated_at": "2026-06-16T15:23:47.496569+00:00",
+  "generated_at": "2026-06-19T16:49:18.263144+00:00",
   "commit": "00000000",
-  "diagnostic_logd": "diagnostic/build-00000000.logd",
+  "diagnostic_logd": "diagnostic\\build-00000000.logd",
   "diagnostic_logd_error": null,
+  "message_blocker": null,
   "chunked": false,
   "chunk_size_bytes": null,
-  "password": "4c7df15ab09fbb066197",
-  "decrypt_command": "encryptly unpack diagnostic/build-00000000.logd <outdir> --password 4c7df15ab09fbb066197",
+  "password": "84b3c727594edd42e0c4ab3e",
+  "decrypt_command": "encryptly unpack diagnostic\\build-00000000.logd <outdir> --password 84b3c727594edd42e0c4ab3e",
   "total_modules": 1,
-  "passed": 0,
-  "failed": 1,
+  "passed": 1,
+  "failed": 0,
   "modules": [
     {
-      "name": "frailbox",
-      "status": "FAIL",
-      "elapsed_seconds": 0,
-      "artifact": null,
-      "output": "Command not found: [Errno 2] No such file or directory: 'make'"
+      "name": "market",
+      "status": "PASS",
+      "elapsed_seconds": 2.722,
+      "artifact": "C:\\Users\\123\\Documents\\Codex\\2026-06-19\\019edff9-c065-7a50-a961-79a478290b4c-2\\work\\zeroeye-main\\market\\market",
+      "output": ""
     }
   ],
-  "pr_note": "Include this JSON diagnostic report and diagnostic/build-00000000.logd in your PR. Maintainers may ask you to remove these diagnostic artifacts before merging."
+  "pr_note": "Include the encrypted diagnostic logd artifact(s): diagnostic\\build-00000000.logd. The encrypted .logd is the required diagnostic content for PR review; this JSON file is metadata. Maintainers may ask you to remove these diagnostic artifacts before merging."
 }
