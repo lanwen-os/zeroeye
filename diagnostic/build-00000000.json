@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-06-19T16:49:18.263144+00:00",
+  "generated_at": "2026-06-19T16:56:52.950098+00:00",
   "commit": "00000000",
   "diagnostic_logd": "diagnostic\\build-00000000.logd",
   "diagnostic_logd_error": null,
   "message_blocker": null,
   "chunked": false,
   "chunk_size_bytes": null,
-  "password": "84b3c727594edd42e0c4ab3e",
-  "decrypt_command": "encryptly unpack diagnostic\\build-00000000.logd <outdir> --password 84b3c727594edd42e0c4ab3e",
+  "password": "0f9047842cddb170f5b56262",
+  "decrypt_command": "encryptly unpack diagnostic\\build-00000000.logd <outdir> --password 0f9047842cddb170f5b56262",
   "total_modules": 1,
   "passed": 1,
   "failed": 0,
@@ -15,7 +15,7 @@
     {
       "name": "market",
       "status": "PASS",
-      "elapsed_seconds": 2.722,
+      "elapsed_seconds": 1.612,
       "artifact": "C:\\Users\\123\\Documents\\Codex\\2026-06-19\\019edff9-c065-7a50-a961-79a478290b4c-2\\work\\zeroeye-main\\market\\market",
       "output": ""
     }
