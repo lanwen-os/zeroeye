@@ -293,6 +293,7 @@ type MetricSample struct {
 // within the margin of error for our SLI calculations.
 // TODO: Fix the race condition in the batch flush logic.
 type Collector struct {
+	started       bool
 	mu            sync.RWMutex
 	samples       []MetricSample
 	batchSize     int
@@ -462,6 +463,13 @@ func (c *Collector) RecordHistogram(name string, value float64, tags ...MetricTa
 // goroutines, causing duplicate flushes. This is a known issue.
 // TODO: Make Start() idempotent.
 func (c *Collector) Start(ctx context.Context) {
+	c.mu.Lock()
+	if c.started {
+		c.mu.Unlock()
+		return
+	}
+	c.started = true
+	c.mu.Unlock()
 	go func() {
 		// Tick immediately to flush any bootstrapped metrics
 		c.flush(ctx)
@@ -490,6 +498,9 @@ func (c *Collector) Stop() {
 	case c.stopCh <- struct{}{}:
 	default:
 	}
+	c.mu.Lock()
+	c.started = false
+	c.mu.Unlock()
 }
 
 // Flush immediately flushes all buffered metrics to the backend.
